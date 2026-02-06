@@ -1,0 +1,8 @@
+{
+  "name": "amazing-hand-to-appsync-handler",
+  "version": "1.0.0",
+  "dependencies": {
+    "aws-amplify": "^6.0.0",
+    "@aws-sdk/client-appsync": "^3.0.0"
+  }
+}

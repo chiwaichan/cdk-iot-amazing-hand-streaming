@@ -1,0 +1,94 @@
+name: AWS CDK Deploy
+
+on:
+  push:
+    branches: [ main, dev ]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  aws-cdk-deploy:
+    runs-on: ubuntu-latest
+    env:
+      # Map branch -> suffix for your secret names
+      SECRET_SUFFIX: ${{ github.ref_name == 'main' && 'PROD' || github.ref_name == 'dev' && 'DEV' || '' }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install AWS CDK
+      run: |
+        npm install -g aws-cdk
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::${{ secrets[format('AWS_ACCOUNT_ID_{0}', env.SECRET_SUFFIX)] }}:role/GithubActionCDKIoT
+        aws-region: us-east-1
+        audience: sts.amazonaws.com
+
+    - name: Install dependencies
+      run: |
+        npm install
+
+    - name: Install Lambda dependencies
+      run: |
+        # Install dependencies for Amazing Hand Lambda
+        cd lambda/amazing-hand-to-appsync
+        npm install
+        cd ../..
+
+    - name: Retrieve AppSync details from AWS
+      run: |
+        # Retrieve Amplify App ID from Parameter Store
+        AMPLIFY_APP_ID=$(aws ssm get-parameter \
+          --name "/iot/amplify/iot" \
+          --query 'Parameter.Value' \
+          --output text)
+
+        # Find the CloudFormation stack for the Amplify data resources
+        DATA_STACK=$(aws cloudformation list-stacks \
+          --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE \
+          --query "StackSummaries[?contains(StackName, '${AMPLIFY_APP_ID}') && contains(StackName, 'data')].StackName | [0]" \
+          --output text)
+
+        # Get the AppSync API ID from the stack
+        APPSYNC_API_ID=$(aws cloudformation describe-stack-resources \
+          --stack-name "$DATA_STACK" \
+          --query 'StackResources[?ResourceType==`AWS::AppSync::GraphQLApi`].PhysicalResourceId' \
+          --output text | sed 's/.*\///')
+
+        # Get the AppSync URL
+        APPSYNC_API_URL=$(aws appsync get-graphql-api \
+          --api-id "$APPSYNC_API_ID" \
+          --query 'graphqlApi.uris.GRAPHQL' \
+          --output text)
+
+        # Get the AppSync API Key
+        APPSYNC_API_KEY=$(aws appsync list-api-keys \
+          --api-id "$APPSYNC_API_ID" \
+          --query 'apiKeys[0].id' \
+          --output text)
+
+        # Export to environment
+        echo "APPSYNC_API_URL=${APPSYNC_API_URL}" >> $GITHUB_ENV
+        echo "APPSYNC_API_KEY=${APPSYNC_API_KEY}" >> $GITHUB_ENV
+        echo "APPSYNC_API_ID=${APPSYNC_API_ID}" >> $GITHUB_ENV
+
+        # Display values for verification (keys are masked in GitHub Actions)
+        echo "AppSync API ID: ${APPSYNC_API_ID}"
+        echo "AppSync URL: ${APPSYNC_API_URL}"
+
+    - name: Deploy with CDK
+      run: |
+        cdk bootstrap
+        cdk deploy --all --require-approval never --concurrency 5 --outputs-file cdk-outputs.json
