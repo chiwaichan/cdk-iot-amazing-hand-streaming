@@ -15,16 +15,21 @@ Amplify.configure({
 
 const client = generateClient();
 
-const createAmazingHand = /* GraphQL */ `
-  mutation CreateAmazingHand($input: CreateAmazingHandInput!) {
-    createAmazingHand(input: $input) {
+const createHandState = /* GraphQL */ `
+  mutation CreateHandState($input: CreateHandStateInput!) {
+    createHandState(input: $input) {
       id
       deviceName
-      hand
-      thumb
-      indexFinger
-      middleFinger
-      ringPinky
+      gesture
+      letter
+      indexAngle1
+      indexAngle2
+      middleAngle1
+      middleAngle2
+      ringAngle1
+      ringAngle2
+      thumbAngle1
+      thumbAngle2
       timestamp
       createdAt
     }
@@ -44,28 +49,35 @@ exports.handler = async (event) => {
       throw new Error('Missing device_name in event');
     }
 
-    const amazingHandData = {
+    // Extract finger angles from nested structure, with defaults
+    const fingers = event.fingers || {};
+    const handStateData = {
       deviceName: event.device_name,
-      hand: event.hand || 'right',
-      thumb: event.thumb || 0,
-      indexFinger: event.index_finger || 0,
-      middleFinger: event.middle_finger || 0,
-      ringPinky: event.ring_pinky || 0,
-      timestamp: Math.floor(event.timestamp / 1000) || Math.floor(Date.now() / 1000)
+      gesture: event.gesture || null,
+      letter: event.letter || null,
+      indexAngle1: fingers.index?.angle_1 ?? 0,
+      indexAngle2: fingers.index?.angle_2 ?? 0,
+      middleAngle1: fingers.middle?.angle_1 ?? 0,
+      middleAngle2: fingers.middle?.angle_2 ?? 0,
+      ringAngle1: fingers.ring?.angle_1 ?? 0,
+      ringAngle2: fingers.ring?.angle_2 ?? 0,
+      thumbAngle1: fingers.thumb?.angle_1 ?? 0,
+      thumbAngle2: fingers.thumb?.angle_2 ?? 0,
+      timestamp: event.ts || Math.floor(Date.now() / 1000)
     };
 
-    console.log('Sending to AppSync:', JSON.stringify(amazingHandData, null, 2));
+    console.log('Sending to AppSync:', JSON.stringify(handStateData, null, 2));
 
     const result = await client.graphql({
-      query: createAmazingHand,
-      variables: { input: amazingHandData }
+      query: createHandState,
+      variables: { input: handStateData }
     });
 
     console.log('GraphQL mutation result:', JSON.stringify(result, null, 2));
-    return { statusCode: 200, body: 'Amazing hand state processed successfully' };
+    return { statusCode: 200, body: 'Hand state processed successfully' };
   } catch (error) {
-    console.error('Error processing amazing hand state:', error);
+    console.error('Error processing hand state:', error);
     console.error('Error details:', JSON.stringify(error, null, 2));
-    return { statusCode: 500, body: 'Error processing amazing hand state' };
+    return { statusCode: 500, body: 'Error processing hand state' };
   }
 };

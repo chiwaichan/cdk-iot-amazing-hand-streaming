@@ -42,7 +42,7 @@ export class IoTStreamingStack extends cdk.Stack {
     const amazingHandStateRule = new iot.CfnTopicRule(this, 'AmazingHandStateRule', {
       ruleName: 'AmazingHandStateStreamingRule',
       topicRulePayload: {
-        sql: "SELECT * FROM 'the-project/amazing-hand/+/state'",
+        sql: "SELECT *, topic(3) AS device_name FROM 'the-project/robotic-hand/+/state'",
         actions: [{
           lambda: {
             functionArn: amazingHandToAppSyncFunction.functionArn
