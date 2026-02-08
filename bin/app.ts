@@ -9,7 +9,7 @@ const appSyncApiUrl = app.node.tryGetContext('appSyncApiUrl') || process.env.APP
 const appSyncApiKey = app.node.tryGetContext('appSyncApiKey') || process.env.APPSYNC_API_KEY!;
 const appSyncApiId = app.node.tryGetContext('appSyncApiId') || process.env.APPSYNC_API_ID!;
 
-new IoTStreamingStack(app, 'IoTStreamingStack', {
+new IoTStreamingStack(app, 'IoTAmazingHandStreamingStack', {
   appSyncApiUrl,
   appSyncApiKey,
   appSyncApiId,
