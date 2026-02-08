@@ -51,18 +51,25 @@ exports.handler = async (event) => {
 
     // Extract finger angles from nested structure, with defaults
     const fingers = event.fingers || {};
+    const index = fingers.index || {};
+    const middle = fingers.middle || {};
+    const ring = fingers.ring || {};
+    const thumb = fingers.thumb || {};
+
+    console.log('Parsed fingers:', JSON.stringify({ index, middle, ring, thumb }, null, 2));
+
     const handStateData = {
       deviceName: event.device_name,
       gesture: event.gesture || null,
       letter: event.letter || null,
-      indexAngle1: fingers.index?.angle_1 ?? 0,
-      indexAngle2: fingers.index?.angle_2 ?? 0,
-      middleAngle1: fingers.middle?.angle_1 ?? 0,
-      middleAngle2: fingers.middle?.angle_2 ?? 0,
-      ringAngle1: fingers.ring?.angle_1 ?? 0,
-      ringAngle2: fingers.ring?.angle_2 ?? 0,
-      thumbAngle1: fingers.thumb?.angle_1 ?? 0,
-      thumbAngle2: fingers.thumb?.angle_2 ?? 0,
+      indexAngle1: index.angle_1 !== undefined ? index.angle_1 : 0,
+      indexAngle2: index.angle_2 !== undefined ? index.angle_2 : 0,
+      middleAngle1: middle.angle_1 !== undefined ? middle.angle_1 : 0,
+      middleAngle2: middle.angle_2 !== undefined ? middle.angle_2 : 0,
+      ringAngle1: ring.angle_1 !== undefined ? ring.angle_1 : 0,
+      ringAngle2: ring.angle_2 !== undefined ? ring.angle_2 : 0,
+      thumbAngle1: thumb.angle_1 !== undefined ? thumb.angle_1 : 0,
+      thumbAngle2: thumb.angle_2 !== undefined ? thumb.angle_2 : 0,
       timestamp: event.ts || Math.floor(Date.now() / 1000)
     };
 
