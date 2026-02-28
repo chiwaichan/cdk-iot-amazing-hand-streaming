@@ -31,6 +31,7 @@ const createHandState = /* GraphQL */ `
       thumbAngle1
       thumbAngle2
       timestamp
+      videoUrl
       createdAt
     }
   }
@@ -70,7 +71,8 @@ exports.handler = async (event) => {
       ringAngle2: ring.angle_2 !== undefined ? ring.angle_2 : 0,
       thumbAngle1: thumb.angle_1 !== undefined ? thumb.angle_1 : 0,
       thumbAngle2: thumb.angle_2 !== undefined ? thumb.angle_2 : 0,
-      timestamp: event.ts || Math.floor(Date.now() / 1000)
+      timestamp: event.ts || Math.floor(Date.now() / 1000),
+      videoUrl: event.video_url || null
     };
 
     console.log('Sending to AppSync:', JSON.stringify(handStateData, null, 2));

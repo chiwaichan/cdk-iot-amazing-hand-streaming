@@ -25,6 +25,7 @@ type AmazingHand @model {
   middleFinger: Int!
   ringPinky: Int!
   timestamp: AWSTimestamp!
+  videoUrl: String
   createdAt: AWSDateTime
 }
 ```
@@ -40,6 +41,7 @@ input CreateAmazingHandInput {
   middleFinger: Int!
   ringPinky: Int!
   timestamp: AWSTimestamp!
+  videoUrl: String
 }
 ```
 
@@ -64,6 +66,7 @@ The Lambda maps IoT payload fields to AppSync input fields as follows:
 | `middle_finger` | `middleFinger` | Int | `0` |
 | `ring_pinky` | `ringPinky` | Int | `0` |
 | `timestamp` | `timestamp` | AWSTimestamp | `Date.now()` |
+| `video_url` | `videoUrl` | String | `null` |
 
 ## Sample IoT Payload
 
@@ -79,7 +82,8 @@ Published to MQTT topic `the-project/robotic-hand/XIAOAmazingHandRight/state`:
     "thumb": { "angle_1": 60, "angle_2": -60 }
   },
   "ts": 1770550850,
-  "letter": "E"
+  "letter": "E",
+  "video_url": "https://cc-amazing-video.s3.amazonaws.com/videos/hand_20260228_212545.mp4?AWSAccessKeyId=AKIA...&Signature=...&Expires=1770549560"
 }
 ```
 
