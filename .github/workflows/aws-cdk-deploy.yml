@@ -59,7 +59,7 @@ jobs:
         DATA_STACK=$(aws cloudformation list-stacks \
           --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE \
           --query "StackSummaries[?contains(StackName, '${AMPLIFY_APP_ID}') && contains(StackName, 'data')].StackName | [0]" \
-          --output text)
+          --output text | head -1)
 
         # Get the AppSync API ID from the stack
         APPSYNC_API_ID=$(aws cloudformation describe-stack-resources \
