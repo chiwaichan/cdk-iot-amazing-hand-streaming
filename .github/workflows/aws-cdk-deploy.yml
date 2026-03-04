@@ -51,7 +51,7 @@ jobs:
       run: |
         # Retrieve Amplify App ID from Parameter Store
         AMPLIFY_APP_ID=$(aws ssm get-parameter \
-          --name "/iot/amplify/iot" \
+          --name "/iot/amplify/amazinghand" \
           --query 'Parameter.Value' \
           --output text)
 
