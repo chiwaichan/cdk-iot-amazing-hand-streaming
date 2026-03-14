@@ -8,6 +8,16 @@ An AWS CDK infrastructure stack that streams real-time robotic hand state data f
 
 A robotic hand device publishes its state (gesture, finger angles, letter) over MQTT to AWS IoT Core. An IoT Rule filters and routes the message to a Lambda function, which transforms the nested payload into a flat GraphQL mutation and sends it to AppSync. AppSync automatically persists the data to DynamoDB and pushes real-time updates to subscribed clients.
 
+## Related Repositories
+
+This project is one of three repositories that together form the end-to-end voice-controlled robotic hand signing system:
+
+| Repository | Purpose |
+|------------|---------|
+| [amplify-react-nova-sonic-voice-chat-amazing-hand](https://github.com/chiwaichan/amplify-react-nova-sonic-voice-chat-amazing-hand) | **Frontend & Voice Processing** — React web app that captures speech via Amazon Nova 2 Sonic, publishes servo commands over MQTT, and displays a live 3D hand animation with real-time state updates |
+| [cdk-iot-amazing-hand-streaming](https://github.com/chiwaichan/cdk-iot-amazing-hand-streaming) | **IoT-to-AppSync Infrastructure (this repo)** — AWS CDK stack that routes robotic hand state data from AWS IoT Core through Lambda to AppSync, enabling real-time GraphQL subscriptions for clients |
+| [strands-agents-amazing-hands](https://github.com/chiwaichan/strands-agents-amazing-hands) | **Edge AI Agent** — Strands Agent running on NVIDIA Jetson that receives MQTT commands, uses Amazon Nova 2 Lite to translate them into servo movements for the physical Amazing Hand, records video, and publishes state back via IoT Core |
+
 ## How It Works
 
 ![Data Transformation Flow](docs/diagrams/data-transformation-flow.png)
