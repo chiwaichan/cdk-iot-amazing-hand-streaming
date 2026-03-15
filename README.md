@@ -8,6 +8,10 @@ An AWS CDK infrastructure stack that streams real-time robotic hand state data f
 
 A robotic hand device publishes its state (gesture, finger angles, letter) over MQTT to AWS IoT Core. An IoT Rule filters and routes the message to a Lambda function, which transforms the nested payload into a flat GraphQL mutation and sends it to AppSync. AppSync automatically persists the data to DynamoDB and pushes real-time updates to subscribed clients.
 
+## Demo Video
+
+[![Watch the demo on YouTube](https://img.youtube.com/vi/MYzz_dtUJJs/0.jpg)](https://www.youtube.com/watch?v=MYzz_dtUJJs)
+
 ## Related Repositories
 
 This project is one of three repositories that together form the end-to-end voice-controlled robotic hand signing system. Each repo has an accompanying blog post that walks through the design and implementation.
